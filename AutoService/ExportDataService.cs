@@ -19,22 +19,30 @@ namespace AutoService
         private Timer timer = null;
         private DataAccess.DataAccess dataAccess;
         private DataAccess.BusinessLogic businessLogic;
-        //private string sql = "select h.ma_so_thue , h.ten_kh , 'IV' as hang_bd, m.ngay_lct, m.so_ct, d.line_nbr, d.ma_vt, vt.ten_vt, d.dvt, d.so_luong from m81$201806 m inner join dmkh h on m.ma_kh = h.ma_kh inner join d81$201806 d on m.stt_rec = d.stt_rec inner join dmvt vt on d.ma_vt = vt.ma_vt";
         private string procName = "sp_ExportDataInvoce";
-        private string path_folder_sql = " select val from options where ma_phan_he = 'GL' and name = 'm_path' ";
+        private string path_folder_sql = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_path' ";
         private string count_dvcs_sql = " select count(ma_dvcs) as sl_ma_dvcs from dmdvcskb where status = '1' ";
         private string ma_so_thue_dl_sql = " select ma_so_thue as ma_so_thue from dmdvcskb where ma_dvcs = 'CTY' and status = '1' ";
         private string ma_so_thue_cn_sql = " select ma_so_thue as ma_so_thue from dmdvcskb where ma_dvcs <> 'CTY' and status = '1' ";
+        private string m_auto_service_h = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_h'";
+        private string m_auto_service_from_name = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_from_name'";
+        private string m_auto_service_from_pass = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_from_pass'";
+        private string m_auto_service_to = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_to'";
+        private string m_auto_service_ccID = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_ccID'";
+        private string m_auto_service_bccID = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_bccID'";
+        private string m_auto_service_title = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_title'";
+        private string m_auto_service_body = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_body'";
+        private string m_auto_service_from_host = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_from_host'";
+        private string m_auto_service_from_port = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_from_port'";
 
         private string pathFileFolder = null;
         private string rootPath = null;
         private string rootPathTest = null;
         private string count_dvcs = "0";
 
-        private string listEmail = "";
-
         private int ctest = 0;
-        DateTime datetimeXX = DateTime.Now;
+        //DateTime datetimeXX = DateTime.Now;
+        DateTime datetimeXX = new DateTime(2017, 03, 01, 00, 00, 00);
 
         public ExportDataService()
         {
@@ -83,7 +91,25 @@ namespace AutoService
                  {
                     //businessLogic.writeResultToExcel(da, pathFileFolder);
                     //businessLogic.writeResultToExcel(da, rootPathTest);
-                    businessLogic.sendMail("hongcuong206@gmail.com", "hongcuong205", "hongsonbk1@gmail.com", "hongson5018@gmail.com", "hongson5018@gmail.com", "Test send auto email of fast system", da, rootPathTest);
+                    string from_name = dataAccess.GetData(m_auto_service_from_name).Rows[0][0].ToString().Trim();
+                    string from_pass = dataAccess.GetData(m_auto_service_from_pass).Rows[0][0].ToString().Trim();
+                    string from_host = dataAccess.GetData(m_auto_service_from_host).Rows[0][0].ToString().Trim();
+                    int from_port = 0;
+                    try
+                    {
+                        from_port = Int32.Parse(dataAccess.GetData(m_auto_service_from_port).Rows[0][0].ToString().Trim());
+                    } catch (Exception ex)
+                    {
+                        businessLogic.logbug(ex.ToString());
+                    }
+                    
+                    string to = dataAccess.GetData(m_auto_service_to).Rows[0][0].ToString().Trim();
+                    string ccID = dataAccess.GetData(m_auto_service_ccID).Rows[0][0].ToString().Trim();
+                    string bccID = dataAccess.GetData(m_auto_service_bccID).Rows[0][0].ToString().Trim();
+                    string title = dataAccess.GetData(m_auto_service_title).Rows[0][0].ToString().Trim();
+
+
+                    businessLogic.sendMail(from_name, from_pass, from_host, from_port, to, ccID, bccID, title, da, rootPathTest);
                     isFlg = false;
                 }
                     

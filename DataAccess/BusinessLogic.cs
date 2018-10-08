@@ -10,6 +10,7 @@ using OfficeOpenXml;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using DataAccess;
 
 namespace DataAccess
 {
@@ -47,7 +48,10 @@ namespace DataAccess
         /// <returns>file logbug.txt</returns>
         public void logbug(string str)
         {
-            string errPath = @"" + AppDomain.CurrentDomain.BaseDirectory + "\\" + "logbug.txt";
+            DataAccess dataAccess = new DataAccess();
+            string path_folder_sql = "select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_path'";
+            string errPathDefault = @"" + AppDomain.CurrentDomain.BaseDirectory + "\\" + "logbug.txt";
+            string errPath = dataAccess.GetData(path_folder_sql).Rows[0][0].ToString().Trim() + "\\" + "logbug.txt";
             FileStream fs = new FileStream(errPath, FileMode.Create);
             StreamWriter swer = new StreamWriter(fs, Encoding.Unicode);
             try
@@ -58,7 +62,11 @@ namespace DataAccess
             }
             catch (IOException ioerr)
             {
-                ioerr.ToString();
+                FileStream fss = new FileStream(errPath, FileMode.Create);
+                StreamWriter swerr = new StreamWriter(fs, Encoding.Unicode);
+                swer.WriteLine(DateTime.Now + "Bug Default : " + ioerr.ToString());
+                swerr.Flush();
+                swerr.Close();
             }
         }
 
@@ -123,7 +131,7 @@ namespace DataAccess
         /// <param name="bccID">bccID</param>
         /// <param name="da">da</param>
         /// <returns>bool</returns>
-        public bool sendMail(string from, string password, string to, string ccID, string bccID,string subjectTitle, System.Data.DataTable da, string path)
+        public bool sendMail(string from, string password, string host, int post, string to, string ccID, string bccID,string subjectTitle, System.Data.DataTable da, string path)
         {
             try
             {
@@ -162,8 +170,8 @@ namespace DataAccess
                 }
 
                 SmtpClient smtpClient = new SmtpClient();
-                smtpClient.Host = "smtp.gmail.com";
-                smtpClient.Port = 587;
+                smtpClient.Host = host;
+                smtpClient.Port = post;
                 smtpClient.Credentials = new System.Net.NetworkCredential(from, password);
                 smtpClient.EnableSsl = true;
                 smtpClient.Timeout = 500000;
