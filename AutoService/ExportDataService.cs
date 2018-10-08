@@ -31,6 +31,8 @@ namespace AutoService
         private string rootPathTest = null;
         private string count_dvcs = "0";
 
+        private string listEmail = "";
+
         private int ctest = 0;
         DateTime datetimeXX = DateTime.Now;
 
