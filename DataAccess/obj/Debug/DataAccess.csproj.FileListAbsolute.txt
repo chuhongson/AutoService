@@ -1,0 +1,10 @@
+C:\Fast\An Dien\AutoService\DataAccess\obj\Debug\DataAccess.csprojAssemblyReference.cache
+C:\Fast\An Dien\AutoService\DataAccess\obj\Debug\DataAccess.csproj.ResolveComReference.cache
+C:\Fast\An Dien\AutoService\DataAccess\obj\Debug\DataAccess.csproj.CoreCompileInputs.cache
+C:\Fast\An Dien\AutoService\DataAccess\bin\Debug\DataAccess.dll
+C:\Fast\An Dien\AutoService\DataAccess\bin\Debug\DataAccess.pdb
+C:\Fast\An Dien\AutoService\DataAccess\bin\Debug\EPPlus.dll
+C:\Fast\An Dien\AutoService\DataAccess\bin\Debug\EPPlus.xml
+C:\Fast\An Dien\AutoService\DataAccess\obj\Debug\DataAccess.csproj.CopyComplete
+C:\Fast\An Dien\AutoService\DataAccess\obj\Debug\DataAccess.dll
+C:\Fast\An Dien\AutoService\DataAccess\obj\Debug\DataAccess.pdb

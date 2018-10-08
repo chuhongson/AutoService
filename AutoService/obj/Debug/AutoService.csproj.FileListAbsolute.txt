@@ -1,0 +1,15 @@
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.csprojAssemblyReference.cache
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.csproj.ResolveComReference.cache
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.ProjectAutoServiceInstaller.resources
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.csproj.GenerateResource.cache
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.csproj.CoreCompileInputs.cache
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.exe.config
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.exe
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.pdb
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\DataAccess.dll
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\EPPlus.dll
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\DataAccess.pdb
+C:\Fast\An Dien\AutoService\AutoService\bin\Debug\EPPlus.xml
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.csproj.CopyComplete
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.exe
+C:\Fast\An Dien\AutoService\AutoService\obj\Debug\AutoService.pdb

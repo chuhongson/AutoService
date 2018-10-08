@@ -1,0 +1,13 @@
+﻿Installing assembly 'C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.exe'.
+Affected parameters are:
+   logtoconsole = 
+   logfile = C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.InstallLog
+   assemblypath = C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.exe
+Installing service FastAutoService...
+Service FastAutoService has been successfully installed.
+Creating EventLog source FastAutoService in log Application...
+Committing assembly 'C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.exe'.
+Affected parameters are:
+   logtoconsole = 
+   logfile = C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.InstallLog
+   assemblypath = C:\Fast\An Dien\AutoService\AutoService\bin\Debug\AutoService.exe
