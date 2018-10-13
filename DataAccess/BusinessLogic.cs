@@ -86,7 +86,7 @@ namespace DataAccess
                 {
                     if (j == 3)
                     {
-                        result.Append(da.Rows[i][j].ToString().Substring(0, 9) + "|");
+                        result.Append(formatDate(da.Rows[i][j].ToString().Substring(0, 9)).Trim() + "|");
                     }
                     else if (j == 9)
                     {
@@ -131,7 +131,7 @@ namespace DataAccess
         /// <param name="bccID">bccID</param>
         /// <param name="da">da</param>
         /// <returns>bool</returns>
-        public bool sendMail(string from, string password, string host, int post, string to, string ccID, string bccID,string subjectTitle, System.Data.DataTable da, string path)
+        public bool sendMail(string from, string password, string host, int post, string to, string ccID, string bccID,string subjectTitle , string contentBody, System.Data.DataTable da, string path, string fistDayInMonthFi, string datetime)
         {
             try
             {
@@ -140,11 +140,11 @@ namespace DataAccess
 
                 mailMessage.Subject = subjectTitle.Trim();
                 mailMessage.SubjectEncoding = System.Text.Encoding.UTF8;
-                mailMessage.Body = "Body Test send auto email of fast system";
+                mailMessage.Body = contentBody;
                 mailMessage.BodyEncoding = System.Text.Encoding.UTF8;
                 mailMessage.IsBodyHtml = false;
                 mailMessage.Priority = MailPriority.High;
-                writeResultToExcel(da, path);
+                writeResultToExcel(da, path, fistDayInMonthFi, datetime);
                 //string excelPath = @"" + AppDomain.CurrentDomain.BaseDirectory + "\\tmpSendEmail.xls";
                 mailMessage.Attachments.Add(new Attachment(path));
 
@@ -193,52 +193,169 @@ namespace DataAccess
             }
         }
 
-        public void writeResultToExcel(System.Data.DataTable da, string path)
+        public void writeResultToExcel(System.Data.DataTable da, string path, string fistDayInMonthFi, string datetime)
         {
             using (var excelPackage = new ExcelPackage())
             {
                 ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("FastAutoService");
 
-                worksheet.Cells[1, 1].Value = "MST";
-                worksheet.Cells[1, 2].Value = "Ten KH";
-                worksheet.Cells[1, 3].Value = "Hang Ban|Tra";
-                worksheet.Cells[1, 4].Value = "Ngay";
-                worksheet.Cells[1, 5].Value = "So HD";
-                worksheet.Cells[1, 6].Value = "So Dong";
-                worksheet.Cells[1, 7].Value = "MA Hang";
-                worksheet.Cells[1, 8].Value = "Ten Hang";
-                worksheet.Cells[1, 9].Value = "Ma CAI";
-                worksheet.Cells[1, 10].Value = "So Luong";
+                worksheet.Cells[1, 1, da.Rows.Count + 4, 10].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[1, 1, da.Rows.Count + 4, 10].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 255, 255));
+
+                worksheet.Row(1).Height = 30;
+                worksheet.Row(2).Height = 30;
+                worksheet.Cells[1, 1].Value = "BẢNG KÊ HÓA ĐƠN BÁN HÀNG";
+                worksheet.Cells[1, 1, 1, 10].Merge = true;
+                worksheet.Cells[1, 1, 1, 10].Style.Font.Bold = true;
+                worksheet.Cells[1, 1, 1, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, 1, 1, 10].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                worksheet.Cells[1, 1, 1, 10].Style.Font.Size = 16;
+
+                worksheet.Cells[2, 1].Value = "Từ ngày " + fistDayInMonthFi.Trim() + "  đến ngày " + datetime.Trim();
+                worksheet.Cells[2, 1, 2, 10].Merge = true;
+                worksheet.Cells[2, 1, 2, 10].Style.Font.Size = 10;
+                worksheet.Cells[2, 1, 2, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[2, 1, 2, 10].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                worksheet.Cells[3, 1].Value = "Mã số thuế";
+                worksheet.Cells[3, 2].Value = "Tên khách";
+                worksheet.Cells[3, 3].Value = "Hàng bán(IV)| Trả lại(CN)";
+                worksheet.Cells[3, 4].Value = "Ngày hóa đơn";
+                worksheet.Cells[3, 5].Value = "Số hóa đơn";
+                worksheet.Cells[3, 6].Value = "Số dòng";
+                worksheet.Cells[3, 7].Value = "Mã hàng";
+                worksheet.Cells[3, 8].Value = "Tên mặt hàng";
+                worksheet.Cells[3, 9].Value = "Mã CAI Michelin";
+                worksheet.Cells[3, 10].Value = "Số lượng";
 
                 excelPackage.Workbook.Properties.Author = "FastAutoService";
                 excelPackage.Workbook.Properties.Title = "FastAutoService";
                 excelPackage.Workbook.Properties.Comments = "FastAutoService for send email";
-                
+                // Format style excel
+                for (int i = 1; i <= 10; i ++)
+                {
+                    worksheet.Cells[3, i, 4, i].Merge = true;
+                    worksheet.Cells[3, i, 4, i].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[3, i, 4, i].Style.Font.Bold = true;
+                    worksheet.Cells[3, i, 4, i].AutoFitColumns();
+                    worksheet.Cells[3, i, 4, i].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    worksheet.Cells[3, i, 4, i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[3, i, 4, i].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(237, 245, 255));
+                    worksheet.Cells[3, i, 4, i].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[3, i, 4, i].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[3, i, 4, i].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    worksheet.Cells[3, i, 4, i].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                }
+
+
+                // Write data to excel
                 var workSheet = excelPackage.Workbook.Worksheets[1];
                 for (int i = 0; i < da.Rows.Count; i ++)
                 {
-                    workSheet.Cells[i + 2, 1].Value = da.Rows[i][0].ToString();
-                    workSheet.Cells[i + 2, 2].Value = da.Rows[i][1].ToString();
-                    workSheet.Cells[i + 2, 3].Value = da.Rows[i][2].ToString();
-                    workSheet.Cells[i + 2, 4].Value = da.Rows[i][3].ToString();
-                    workSheet.Cells[i + 2, 5].Value = da.Rows[i][4].ToString();
-                    workSheet.Cells[i + 2, 6].Value = da.Rows[i][5].ToString();
-                    workSheet.Cells[i + 2, 7].Value = da.Rows[i][6].ToString();
-                    workSheet.Cells[i + 2, 8].Value = da.Rows[i][7].ToString();
-                    workSheet.Cells[i + 2, 9].Value = da.Rows[i][8].ToString();
-                    if (da.Rows[i][9].ToString().IndexOf(".") != -1)
+                    workSheet.Cells[i + 5, 1].Value = da.Rows[i][0].ToString().Trim();
+                    worksheet.Cells[i + 5, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[i + 5, 1].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 1].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 2].Value = da.Rows[i][1].ToString().Trim();
+                    worksheet.Cells[i + 5, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[i + 5, 2].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 2].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 3].Value = da.Rows[i][2].ToString().Trim();
+                    worksheet.Cells[i + 5, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[i + 5, 3].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 3].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 4].Value = formatDate(da.Rows[i][3].ToString().Substring(0, 9)).Trim();
+                    worksheet.Cells[i + 5, 4].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[i + 5, 4].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 4].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 5].Value = da.Rows[i][4].ToString().Trim();
+                    worksheet.Cells[i + 5, 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[i + 5, 5].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 5].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 6].Value = da.Rows[i][5].ToString().Trim();
+                    worksheet.Cells[i + 5, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[i + 5, 6].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 6].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 7].Value = da.Rows[i][6].ToString().Trim();
+                    worksheet.Cells[i + 5, 7].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[i + 5, 7].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 7].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 8].Value = da.Rows[i][7].ToString().Trim();
+                    worksheet.Cells[i + 5, 8].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                    worksheet.Cells[i + 5, 8].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 8].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    workSheet.Cells[i + 5, 9].Value = da.Rows[i][8].ToString().Trim();
+                    worksheet.Cells[i + 5, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[i + 5, 9].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 9].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+
+                    string str_so_luong = da.Rows[i][9].ToString().Trim();
+                    if (str_so_luong.IndexOf(".") != -1)
                     {
-                        string str_so_luong = da.Rows[i][9].ToString();
-                        workSheet.Cells[i + 2, 10].Value = str_so_luong.Substring(0, str_so_luong.IndexOf("."));
+                        workSheet.Cells[i + 5, 10].Value =  str_so_luong.Substring(0, str_so_luong.IndexOf(".")) + ".00";
                     }
                     else
                     {
-                        workSheet.Cells[i + 2, 10].Value = da.Rows[i][9].ToString();
+                        workSheet.Cells[i + 5, 10].Value =  str_so_luong + ".00";
                     }
+
+                    worksheet.Cells[i + 5, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[i + 5, 10].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
+                    worksheet.Cells[i + 5, 10].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    //worksheet.Cells[i + 5, 10].Style.Numberformat.Format = "### ### ##0.00";
+
                 }
+
                 workSheet.Protection.IsProtected = false;
                 workSheet.Protection.AllowSelectLockedCells = false;
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                worksheet.Cells[worksheet.Dimension.Address].Style.Font.Name = "Times New Roman";
+                worksheet.Cells[5, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].Style.Font.Size = 10;
+                worksheet.Cells[da.Rows.Count + 5, 1, da.Rows.Count + 5, 10].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+
                 excelPackage.SaveAs(new FileInfo(path));
+            }
+        }
+
+        public string formatDate(string tt)
+        {
+            if ("".Equals(tt) || tt == null)
+            {
+                tt = "";
+                return tt;
+            }
+            else
+            {
+                string[] sy = tt.Split('/');
+                string fi = "";
+
+                if (sy[1].Length == 1)
+                {
+                    fi = "0" + sy[1] + "/";
+                }
+                else
+                {
+                    fi = sy[1] + "/";
+                }
+
+                if (sy[0].Length == 1)
+                {
+                    fi = fi + "0" + sy[0] + "/";
+                }
+                else
+                {
+                    fi = fi + sy[0] + "/";
+                }
+
+                return fi + sy[2];
             }
         }
     }
