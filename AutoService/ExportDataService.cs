@@ -15,7 +15,7 @@ namespace AutoService
 {
     public partial class ExportDataService : ServiceBase
     {
-        private bool isFlg = true;
+        private int isFlg = 0;
         private Timer timer = null;
         private DataAccess.DataAccess dataAccess;
         private DataAccess.BusinessLogic businessLogic;
@@ -39,10 +39,12 @@ namespace AutoService
         private string rootPath = null;
         private string rootPathTest = null;
         private string count_dvcs = "0";
+        private string fistDayInMonthFi = null;
+        private string dayNowFi = null;
 
         private int ctest = 0;
         //DateTime datetimeXX = DateTime.Now;
-        DateTime datetimeXX = new DateTime(2017, 03, 01, 00, 00, 00);
+        DateTime datetimeXX = new DateTime(2017, 04, 25, 00, 00, 00);
 
         public ExportDataService()
         {
@@ -65,7 +67,6 @@ namespace AutoService
         {
             ctest++;
             DateTime datetime = datetimeXX.AddDays(ctest);
-
             DataTable da = new DataTable();
             pathFileFolder = dataAccess.GetData(path_folder_sql).Rows[0][0].ToString().Trim() + "\\";
             if ("".Equals(pathFileFolder) || pathFileFolder ==  null)
@@ -82,13 +83,14 @@ namespace AutoService
             {
                 
                 string ma_so_thue_a = dataAccess.GetData(ma_so_thue_dl_sql).Rows[0][0].ToString().Trim();
-                rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.AddDays(-1).ToString("yyyyMMdd") + ".txt";
-                rootPathTest = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.AddDays(-1).ToString("yyyyMMdd") + ".xlsx";
+                rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.ToString("yyyyMMdd") + ".txt";
+                rootPathTest = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.ToString("yyyyMMdd") + ".xlsx";
                 da = getDataTable(datetime);
                 businessLogic.writeResult(rootPath, da);
                 
-                if (isFlg == true)
-                 {
+                if (ctest == 1 || ctest == 2 || ctest == 7)
+                {
+                    
                     //businessLogic.writeResultToExcel(da, pathFileFolder);
                     //businessLogic.writeResultToExcel(da, rootPathTest);
                     string from_name = dataAccess.GetData(m_auto_service_from_name).Rows[0][0].ToString().Trim();
@@ -107,10 +109,12 @@ namespace AutoService
                     string ccID = dataAccess.GetData(m_auto_service_ccID).Rows[0][0].ToString().Trim();
                     string bccID = dataAccess.GetData(m_auto_service_bccID).Rows[0][0].ToString().Trim();
                     string title = dataAccess.GetData(m_auto_service_title).Rows[0][0].ToString().Trim();
+                    string service_body = dataAccess.GetData(m_auto_service_body).Rows[0][0].ToString().Trim();
 
-
-                    businessLogic.sendMail(from_name, from_pass, from_host, from_port, to, ccID, bccID, title, da, rootPathTest);
-                    isFlg = false;
+                    businessLogic.sendMail(from_name, from_pass, from_host, from_port, to, ccID, bccID, title, service_body, da, rootPathTest, fistDayInMonthFi, dayNowFi);
+                    dayNowFi = null;
+                    fistDayInMonthFi = null;
+                    //isFlg = isFlg + 1;
                 }
                     
             }
@@ -122,7 +126,7 @@ namespace AutoService
                 for (int i = 0; i < daTable.Rows.Count; i ++)
                 {
                     string ma_so_thue_b = daTable.Rows[i][0].ToString().Trim();
-                    rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_" + ma_so_thue_b + "_" + datetime.AddDays(-1).ToString("yyyyMMdd") + ".txt";
+                    rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_" + ma_so_thue_b + "_" + datetime.ToString("yyyyMMdd") + ".txt";
                 }
                 
             }
@@ -152,14 +156,18 @@ namespace AutoService
                 if (dateNow >= 1 && dateNow <= 5)
                 {
                     DateTime fistDayInMonth = businessLogic.getFistDayInMonth(yearPre, monthPre);
+                    fistDayInMonthFi = businessLogic.formatDate(fistDayInMonth.ToString().Substring(0, 9));
+                    dayNowFi = businessLogic.formatDate(datetime.ToString().Substring(0, 9));
                     da = dataAccess.ExecuteProc(procName, fistDayInMonth, datetime);
-                    businessLogic.logbug(procName + fistDayInMonth+ datetime);
+                    //businessLogic.logbug(procName + fistDayInMonth+ datetime);
                 }
                 else if (dateNow >= 6 && dateNow <= lastDateOfMonthNow)
                 {
                     DateTime fistDayInMonth = businessLogic.getFistDayInMonth(yearNow, monthNow);
+                    fistDayInMonthFi = businessLogic.formatDate(fistDayInMonth.ToString().Substring(0, 9));
+                    dayNowFi = businessLogic.formatDate(datetime.ToString().Substring(0, 9));
                     da = dataAccess.ExecuteProc(procName, fistDayInMonth, datetime);
-                    businessLogic.logbug(procName + fistDayInMonth + datetime);
+                    //businessLogic.logbug(procName + fistDayInMonth + datetime);
             }
             //}
             return da;
