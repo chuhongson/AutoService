@@ -10,12 +10,9 @@ namespace DataAccess
 {
     public class DataAccess
     {
-        //private string _connectString = @"Data Source=server;Initial Catalog=CFNGON_FBOHRMSP203_APP;User ID=tvud;Password=123456789";
-        private string _connectString = "Data Source=Server;Initial Catalog=ANDIEN_FBOSP191_App;Application Name=%UserID;Uid=tvud;Pwd=123456789;";
-        //private string _connectString = "Data Source=UTTHAO;Initial Catalog=Release_FBOHRMSP221_App;Application Name=%UserID;Uid=sa;Pwd=123456;";
+        private string _connectString = "Data Source=ANDIEN;Initial Catalog=ANDIEN_FBOSP191_App;Application Name=%UserID;Uid=sa;Pwd=Andien@2017;";
         private SqlConnection conn;
         private SqlCommand cmd;
-
 
         /// <summary>
         /// Mo ket noi
