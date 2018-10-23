@@ -15,12 +15,12 @@ namespace AutoService
 {
     public partial class ExportDataService : ServiceBase
     {
-        private int isFlg = 0;
         private Timer timer = null;
         private DataAccess.DataAccess dataAccess;
         private DataAccess.BusinessLogic businessLogic;
         private string procName = "sp_ExportDataInvoce";
         private string path_folder_sql = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_path' ";
+        private string path_folder_sql_excel = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_pathexcel' ";
         private string count_dvcs_sql = " select count(ma_dvcs) as sl_ma_dvcs from dmdvcskb where status = '1' ";
         private string ma_so_thue_dl_sql = " select ma_so_thue as ma_so_thue from dmdvcskb where ma_dvcs = 'CTY' and status = '1' ";
         private string ma_so_thue_cn_sql = " select ma_so_thue as ma_so_thue from dmdvcskb where ma_dvcs <> 'CTY' and status = '1' ";
@@ -36,15 +36,15 @@ namespace AutoService
         private string m_auto_service_from_port = " select val from options where ma_phan_he = 'GL' and name = 'm_auto_service_from_port'";
 
         private string pathFileFolder = null;
+        private string pathFileFolderExcel = null;
         private string rootPath = null;
-        private string rootPathTest = null;
+        private string rootPathExcel = null;
         private string count_dvcs = "0";
         private string fistDayInMonthFi = null;
         private string dayNowFi = null;
+        private int hourExportData = 0;
 
-        private int ctest = 0;
-        //DateTime datetimeXX = DateTime.Now;
-        DateTime datetimeXX = new DateTime(2017, 04, 25, 00, 00, 00);
+        //DateTime datetimeXX = new DateTime(2017, 04, 27, 13, 00, 00);
 
         public ExportDataService()
         {
@@ -56,81 +56,119 @@ namespace AutoService
         protected override void OnStart(string[] args)
         {
             timer = new Timer();
-            //timer.Interval = 86400000;
-            
-            timer.Interval = 3000;
+            // 1h run time 1 step
+            timer.Interval = 3600000;
+            //timer.Interval = 10000;
             timer.Elapsed += timer_Tick;
             timer.Enabled = true;
         }
 
         private void timer_Tick(object sender, ElapsedEventArgs args)
         {
-            ctest++;
-            DateTime datetime = datetimeXX.AddDays(ctest);
-            DataTable da = new DataTable();
-            pathFileFolder = dataAccess.GetData(path_folder_sql).Rows[0][0].ToString().Trim() + "\\";
-            if ("".Equals(pathFileFolder) || pathFileFolder ==  null)
+            //DateTime datetime = datetimeXX.AddDays(ctest);
+            DateTime datetimeXX = DateTime.Now;
+            DateTime datetime = datetimeXX.AddDays(-1);
+            string hourExport = dataAccess.GetData(m_auto_service_h).Rows[0][0].ToString().Trim();
+            
+            try
             {
-                pathFileFolder = AppDomain.CurrentDomain.BaseDirectory + "\\";
+                hourExportData = Int32.Parse(hourExport);
+            } catch (Exception exx)
+            {
+                hourExportData = 13;
+                businessLogic.logbug(exx.ToString());
             }
-
-            count_dvcs = dataAccess.GetData(count_dvcs_sql).Rows[0][0].ToString().Trim();
-            if ("0".Equals(count_dvcs))
+            
+            if (datetime.Hour == hourExportData)
             {
-                businessLogic.logbug("Not find madvcs");
-            }
-            else if ("1".Equals(count_dvcs) && pathFileFolder != null)
-            {
-                
-                string ma_so_thue_a = dataAccess.GetData(ma_so_thue_dl_sql).Rows[0][0].ToString().Trim();
-                rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.ToString("yyyyMMdd") + ".txt";
-                rootPathTest = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.ToString("yyyyMMdd") + ".xlsx";
-                da = getDataTable(datetime);
-                businessLogic.writeResult(rootPath, da);
-                
-                if (ctest == 1 || ctest == 2 || ctest == 7)
+                DataTable da = new DataTable();
+                pathFileFolder = dataAccess.GetData(path_folder_sql).Rows[0][0].ToString().Trim() + "\\";
+                pathFileFolderExcel = dataAccess.GetData(path_folder_sql_excel).Rows[0][0].ToString().Trim() + "\\";
+                if ("".Equals(pathFileFolder) || pathFileFolder == null)
                 {
-                    
-                    //businessLogic.writeResultToExcel(da, pathFileFolder);
-                    //businessLogic.writeResultToExcel(da, rootPathTest);
-                    string from_name = dataAccess.GetData(m_auto_service_from_name).Rows[0][0].ToString().Trim();
-                    string from_pass = dataAccess.GetData(m_auto_service_from_pass).Rows[0][0].ToString().Trim();
-                    string from_host = dataAccess.GetData(m_auto_service_from_host).Rows[0][0].ToString().Trim();
-                    int from_port = 0;
-                    try
+                    pathFileFolder = "D:\\Michelin\\FTP\\Upload\\";
+                }
+                else
+                {
+                    if (!System.IO.Directory.Exists(pathFileFolder))
                     {
-                        from_port = Int32.Parse(dataAccess.GetData(m_auto_service_from_port).Rows[0][0].ToString().Trim());
-                    } catch (Exception ex)
-                    {
-                        businessLogic.logbug(ex.ToString());
+                        string folderNametxt = @"D:\Michelin\FTP";
+
+                        string pathString1 = System.IO.Path.Combine(folderNametxt, "Upload");
+                        string pathString2 = System.IO.Path.Combine(folderNametxt, "Encrypted");
+                        string pathString3 = System.IO.Path.Combine(folderNametxt, "Sent");
+                        System.IO.Directory.CreateDirectory(pathString1);
+                        System.IO.Directory.CreateDirectory(pathString2);
+                        System.IO.Directory.CreateDirectory(pathString3);
+                        pathFileFolder = "D:\\Michelin\\FTP\\Upload\\";
                     }
-                    
-                    string to = dataAccess.GetData(m_auto_service_to).Rows[0][0].ToString().Trim();
-                    string ccID = dataAccess.GetData(m_auto_service_ccID).Rows[0][0].ToString().Trim();
-                    string bccID = dataAccess.GetData(m_auto_service_bccID).Rows[0][0].ToString().Trim();
-                    string title = dataAccess.GetData(m_auto_service_title).Rows[0][0].ToString().Trim();
-                    string service_body = dataAccess.GetData(m_auto_service_body).Rows[0][0].ToString().Trim();
-
-                    businessLogic.sendMail(from_name, from_pass, from_host, from_port, to, ccID, bccID, title, service_body, da, rootPathTest, fistDayInMonthFi, dayNowFi);
-                    dayNowFi = null;
-                    fistDayInMonthFi = null;
-                    //isFlg = isFlg + 1;
                 }
-                    
-            }
-            else
-            {
-                DataTable daTable = dataAccess.GetData(ma_so_thue_cn_sql);
-                string ma_so_thue_a = dataAccess.GetData(ma_so_thue_dl_sql).Rows[0][0].ToString().Trim();
-
-                for (int i = 0; i < daTable.Rows.Count; i ++)
+                if ("".Equals(pathFileFolderExcel) || pathFileFolderExcel == null)
                 {
-                    string ma_so_thue_b = daTable.Rows[i][0].ToString().Trim();
-                    rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_" + ma_so_thue_b + "_" + datetime.ToString("yyyyMMdd") + ".txt";
+                    pathFileFolderExcel = "D:\\FAST\\AutoService\\Excel\\";
                 }
-                
-            }
+                else
+                {
+                    if (!System.IO.Directory.Exists(pathFileFolderExcel))
+                    {
+                        string folderNameExcel = @"D:\FAST\AutoService\Excel";
+                        System.IO.Directory.CreateDirectory(folderNameExcel);
+                        pathFileFolderExcel = "D:\\FAST\\AutoService\\Excel\\";
+                    }
+                }
 
+                count_dvcs = dataAccess.GetData(count_dvcs_sql).Rows[0][0].ToString().Trim();
+                if ("0".Equals(count_dvcs))
+                {
+                    businessLogic.logbug("Not find madvcs");
+                }
+                else if ("1".Equals(count_dvcs) && pathFileFolder != null)
+                {
+
+                    string ma_so_thue_a = dataAccess.GetData(ma_so_thue_dl_sql).Rows[0][0].ToString().Trim();
+                    rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.ToString("yyyyMMdd") + ".txt";
+                    rootPathExcel = @"" + pathFileFolderExcel + "Sales_Detail_" + ma_so_thue_a + "_A_" + datetime.ToString("yyyyMMdd") + ".xlsx";
+                    da = getDataTable(datetime);
+                    businessLogic.writeResult(rootPath, da);
+
+                        //businessLogic.writeResultToExcel(da, pathFileFolder);
+                        //businessLogic.writeResultToExcel(da, rootPathTest);
+                        string from_name = dataAccess.GetData(m_auto_service_from_name).Rows[0][0].ToString().Trim();
+                        string from_pass = dataAccess.GetData(m_auto_service_from_pass).Rows[0][0].ToString().Trim();
+                        string from_host = dataAccess.GetData(m_auto_service_from_host).Rows[0][0].ToString().Trim();
+                        int from_port = 0;
+                        try
+                        {
+                            from_port = Int32.Parse(dataAccess.GetData(m_auto_service_from_port).Rows[0][0].ToString().Trim());
+                        }
+                        catch (Exception ex)
+                        {
+                            businessLogic.logbug(ex.ToString());
+                        }
+
+                        string to = dataAccess.GetData(m_auto_service_to).Rows[0][0].ToString().Trim();
+                        string ccID = dataAccess.GetData(m_auto_service_ccID).Rows[0][0].ToString().Trim();
+                        string bccID = dataAccess.GetData(m_auto_service_bccID).Rows[0][0].ToString().Trim();
+                        string title = dataAccess.GetData(m_auto_service_title).Rows[0][0].ToString().Trim();
+                        string service_body = dataAccess.GetData(m_auto_service_body).Rows[0][0].ToString().Trim();
+
+                        businessLogic.sendMail(from_name, from_pass, from_host, from_port, to, ccID, bccID, title, service_body, da, rootPathExcel, fistDayInMonthFi, dayNowFi);
+                        dayNowFi = null;
+                        fistDayInMonthFi = null;
+                }
+                else
+                {
+                    DataTable daTable = dataAccess.GetData(ma_so_thue_cn_sql);
+                    string ma_so_thue_a = dataAccess.GetData(ma_so_thue_dl_sql).Rows[0][0].ToString().Trim();
+
+                    for (int i = 0; i < daTable.Rows.Count; i++)
+                    {
+                        string ma_so_thue_b = daTable.Rows[i][0].ToString().Trim();
+                        rootPath = @"" + pathFileFolder + "Sales_Detail_" + ma_so_thue_a + "_" + ma_so_thue_b + "_" + datetime.ToString("yyyyMMdd") + ".txt";
+                    }
+
+                }
+            }
         }
 
 

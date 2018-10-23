@@ -306,12 +306,9 @@ namespace DataAccess
                     {
                         workSheet.Cells[i + 5, 10].Value =  str_so_luong + ".00";
                     }
-
                     worksheet.Cells[i + 5, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                     worksheet.Cells[i + 5, 10].Style.Border.Top.Style = ExcelBorderStyle.Dotted;
                     worksheet.Cells[i + 5, 10].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                    //worksheet.Cells[i + 5, 10].Style.Numberformat.Format = "### ### ##0.00";
-
                 }
 
                 workSheet.Protection.IsProtected = false;
@@ -321,7 +318,23 @@ namespace DataAccess
                 worksheet.Cells[5, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].Style.Font.Size = 10;
                 worksheet.Cells[da.Rows.Count + 5, 1, da.Rows.Count + 5, 10].Style.Border.Top.Style = ExcelBorderStyle.Thin;
 
-                excelPackage.SaveAs(new FileInfo(path));
+                if (System.IO.File.Exists(path))
+                {
+                    try
+                    {
+                        logbug("File da ton tai");
+                    }
+                    catch (System.IO.IOException e)
+                    {
+                        logbug(e.ToString());
+                    }
+                } else
+                {
+                    //Stream stream = File.Create(path);
+                    //excelPackage.SaveAs(stream);
+                    //stream.Close();
+                    excelPackage.SaveAs(new FileInfo(path));
+                }
             }
         }
 
