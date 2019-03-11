@@ -10,7 +10,7 @@ namespace DataAccess
 {
     public class DataAccess
     {
-        private string _connectString = "Data Source=ANDIEN;Initial Catalog=ANDIEN_FBOSP191_App;Application Name=%UserID;Uid=sa;Pwd=Andien@2017;";
+        private string _connectString = "Data Source=ANDIEN;Initial Catalog=ANDIEN_FBOSP191_App;Application Name=%UserID;Uid=sa;Pwd=";
         private SqlConnection conn;
         private SqlCommand cmd;
 
